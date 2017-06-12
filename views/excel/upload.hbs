@@ -1,0 +1,43 @@
+<input id="fileupload" type="file" name="files" multiple>
+<button type="submit" id="submit">提交</button>
+<script src="/javascripts/jquery-3.2.1.min.js"></script>
+<script src="/javascripts/jquery.ui.widget.js"></script>
+<script src="/javascripts/jquery.iframe-transport.js"></script>
+<script src="/javascripts/jquery.fileupload.js"></script>
+<script>
+$(function () {
+    var url = "/excel/upload";
+    $("#submit").on("click", function (evt) {
+        evt.preventDefault();
+        var filesList = $('input[type="file"]').prop('files');
+        $('#submit').fileupload('add', {files: filesList, url: url});
+        return false;
+    });
+
+    $('#submit').fileupload({
+        url: url,
+        autoUpload: false,
+        dataType: 'json',
+        acceptFileTypes: /".xlsx"/i,
+        maxFileSize: 20000000,
+        add: function (e, data) {
+            var file = data.files[0];
+            if (! /(\.|\/)(xlsx)$/i.test(file.name)) {
+                alert('只能上传xlsx文件');
+                return
+            } else if (file.size > 20000000) {
+                alert('上传的文件太大了，请上传20m以下的文件');
+                return
+            }
+            data.submit();
+        }, done: function (e, data) {
+            data = data.result;
+            if (data.ok) {
+                alert("操作成功");
+            } else {
+                alert(data.reason);
+            }
+        },
+    });
+});
+</script>
